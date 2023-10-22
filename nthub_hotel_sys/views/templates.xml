@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_homes"  name="Show Reservation" customize_show="True"  inherit_id="portal.portal_my_home">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="url">/my/home/reservation_list</t>
+                <t t-set="title">Reservations Details</t>
+                <t t-set="placeholder_count" t-value="'reservation_count'"/>
+            </t>
+        </xpath>
+    </template>
+
+<!--      <record id="menu_reservation" model="website.menu">-->
+<!--        <field name="name">Reservations</field>-->
+<!--        <field name="url">/my/home/reservation_list</field>-->
+<!--        <field name="parent_id" ref="website.main_menu"/>-->
+<!--        <field name="sequence" type="int">10</field>-->
+<!--    </record>-->
+
+
+    <template id="reservation_details_page" name="reservation details">
+        <t t-call="portal.portal_layout">
+            <link rel="stylesheet" href="/nthub_hotel_sys/static/css/custom.css"/>
+            <t t-call="nthub_hotel_sys.portal_layout_id"/>
+            <div class="oe_structure">
+                <div class="container">
+                    <a t-attf-href="/my/home/reservation/form?{{ keep_query() }}" style="display: inline-block;">
+                        <button type="button" class="btn btn-info btn-md" id="create_reservation">Create Reservation
+                        </button>
+                    </a>
+                    <div style="display: flex; align-items: center;">
+                        <label class="control-label" for="state_filter">Filter by Status</label>
+                        <select id="state_filter" class="custom-input">
+                            <option value="all">All</option>
+                            <option value="draft">Draft</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="running">Running</option>
+                            <option value="ended">Ended</option>
+                        </select>
+                    </div>
+                    <script>
+                        var selectedState = "{{ selected_state }}";
+
+                        var stateFilter = document.getElementById("state_filter");
+                        stateFilter.value = selectedState;
+
+                        stateFilter.addEventListener("change", function() {
+                        var selectedValue = stateFilter.value;
+                        location.href = '/my/home/reservation_list/' + selectedValue;
+                        });
+                    </script>
+
+                    <table class="table-striped table" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>Customer</th>
+                                <th>Reservation Start Date</th>
+                                <th>Reservation End Date</th>
+                                <th>Duration</th>
+                                <th>Room Number</th>
+                                <th>Status</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="my_details" t-as="order">
+                                <t t-if="selected_state == 'all' or selected_state == order.state">
+                                    <tr>
+                                        <td>
+                                            <a t-attf-href="/desired_reservation/#{order.id}">
+                                                <span t-esc="order.name"/>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span t-esc="order.customer_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="order.res_start_date"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="order.res_end_date"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="order.duration"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="order.room_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="order.state"/>
+                                        </td>
+                                        <td>
+                                            <span t-esc="order.note"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </t>
+    </template>
+
+
+    <template id="customer_reservation_form" name="Reservation Form">
+        <t t-call="portal.portal_layout">
+            <link rel="stylesheet" href="/nthub_hotel_sys/static/css/custom.css"/>
+            <div class="oe_structure">
+                <div class="model-body" style="padding: 1px 50px;">
+                    <form method="post" class="s_website_form container-fluid mt-32"
+                          action="/my/home/reservation/create" id="reservation-form">
+                        <center>
+                            <br/>
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                            <div class="form-group">
+                                <label for="customer_id" class="control-label">Customer</label>
+                                <select name="customer_id" class="form-control custom-input" required="required">
+                                    <t t-foreach="customers" t-as="customer">
+                                        <option t-att-value="customer.id">
+                                            <t t-out="customer.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="res_start_date" class="control-label">Reservation Start Date</label>
+                                <input type="date" name="res_start_date" id="res_start_date"
+                                       class="form-control custom-input" required="required"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="res_end_date" class="control-label">Reservation End Date</label>
+                                <input type="date" name="res_end_date" id="res_end_date"
+                                       class="form-control custom-input" required="required"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="room_id" class="control-label">Room Number</label>
+                                <select name="room_id" class="form-control custom-input" required="required">
+                                    <t t-foreach="rooms" t-as="room">
+                                        <option t-att-value="room.id">
+                                            <t t-out="room.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-info">Submit</button>
+                            </div>
+                        </center>
+                    </form>
+                </div>
+            </div>
+        </t>
+    </template>
+
+
+    <template id="customer_details_form_shown_link" inherit_id="portal.portal_sidebar">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <section style="background-color:#eee;">
+                <div class="container py-5">
+                    <div class="row">
+                        <div class="col-lg-6"> <!-- Increased the column width to 6 -->
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <h5 class="card-title">Customer Details</h5>
+                                    </div>
+                                    <hr/>
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4">
+                                            <strong>Customer:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <p class="text-muted" t-field="order.customer_id.name"/>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4">
+                                            <strong>Room Number:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <p class="text-muted" t-field="order.room_id.name"/>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4">
+                                            <strong>Reservation End Date:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <p class="text-muted" t-field="order.res_end_date"/>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                    <div class="row mb-3">
+                                        <div class="col-sm-4">
+                                            <strong>State:</strong>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <p class="text-muted" t-field="order.state"/>
+                                        </div>
+                                    </div>
+                                    <hr/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </xpath>
+
+
+    </template>
+
+
+    <template id="portal_layout_id" name="Portal layout: Reservation Requests" inherit_id="portal.portal_breadcrumbs"
+              priority="40">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <t>
+                <li t-if="page_name == 'reservation_form' or reservation_form"
+                    t-attf-class="breadcrumb-item #{'active ' if not pr else ''}">
+                    <a style="display:inline" t-attf-href="/my/home/reservation_list?{{ keep_query() }}">Reservation
+                        Details
+                    </a>
+                    <h6 style="display:inline">/ Reservation Form</h6>
+                </li>
+                <li t-if="page_name == 'desired_reservation' or desired_reservation"
+                    t-attf-class="breadcrumb-item #{'active ' if not pr else ''}">
+                    <a style="display:inline" t-attf-href="/my/home/reservation_list?{{ keep_query() }}">Reservation
+                        Details
+                    </a>
+                    <h6 style="display:inline">/ Customer Reservation</h6>
+                </li>
+                <li t-if="page_name == 'reservation_details' or reservation_details"
+                    t-attf-class="breadcrumb-item #{'active ' if not Reservation else ''}">
+                    <h6 style="display:inline">Reservation Details</h6>
+                </li>
+            </t>
+        </xpath>
+    </template>
+</odoo>
