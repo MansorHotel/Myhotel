@@ -1,0 +1,36 @@
+/* styles.css */
+/* Style labels on the left side */
+.control-label {
+  display: block;
+  text-align: left;
+  margin-bottom: 10px; /* Increase the margin for better spacing */
+  font-weight: bold; /* Make the label bold for better visibility */
+  font-size: 16px; /* Adjust the font size as needed */
+}
+
+/* Custom styling for form fields with smaller width */
+.custom-input {
+  border: 1px solid #ccc;
+  padding: 10px; /* Increase padding for better visual appeal */
+  width: 60%; /* Adjust the width as needed */
+  border-radius: 4px;
+  box-shadow: none;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Style the select elements specifically */
+.custom-input select {
+  appearance: none;
+  background: url('path/to/your-dropdown-icon.png') no-repeat right center;
+  background-size: 20px 20px;
+  cursor: pointer;
+  font-size: 16px; /* Adjust the font size as needed */
+  padding-right: 30px; /* Increase right padding for the dropdown arrow icon */
+}
+
+/* Add hover and focus styles */
+.custom-input:hover,
+.custom-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.7); /* Enhance the box shadow */
+}

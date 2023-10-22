@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hotel_room,hotel.room,model_hotel_room,,1,1,1,1
+access_hotel_reservation,hotel.reservation,model_hotel_reservation,,1,1,1,1
+access_hotel_extra,hotel.extra,model_hotel_extra,,1,1,1,1
+

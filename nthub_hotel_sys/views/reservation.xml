@@ -1,0 +1,215 @@
+<odoo>
+    <data>
+        <record id="action_server_cron_job" model="ir.actions.server">
+            <field name="name">Update Reservations Status</field>
+            <field name="type">ir.actions.server</field>
+            <field name="model_id" ref="model_hotel_reservation"/>
+            <field name="binding_model_id" ref="model_hotel_reservation"/>
+            <field name="state">code</field>
+            <field name="code">records.check_reservation_status()</field>
+        </record>
+        <record id="view_reservation_graph" model="ir.ui.view">
+            <field name="name">reservation.graph</field>
+            <field name="model">hotel.reservation</field>
+            <field name="arch" type="xml">
+                <graph string="Reservation">
+                    <field name="room_id" type="col"/>
+                </graph>
+            </field>
+        </record>
+        <record id="view_reservation_pivot" model="ir.ui.view">
+            <field name="name">reservation.pivot</field>
+            <field name="model">hotel.reservation</field>
+            <field name="arch" type="xml">
+                <pivot string="Reservation">
+                    <field name="customer_id" type="col"/>
+                    <field name="room_id" type="row"/>
+                </pivot>
+            </field>
+        </record>
+        <record id="view_reservation_kanban" model="ir.ui.view">
+            <field name="name">hotel.reservation.kanban</field>
+            <field name="model">hotel.reservation</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="id"/>
+                    <field name="name"/>
+                    <field name="customer_id"/>
+                    <field name="room_id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div class="oe_kanban_details">
+                                    <ul>
+                                        <li>
+                                            Reference:
+                                            <field name="name"/>
+                                        </li>
+                                        <li>
+                                            Name:
+                                            <field name="customer_id"/>
+                                        </li>
+                                        <li>
+                                            Room Number:
+                                            <field name="room_id"/>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record id="view_reservation_form" model="ir.ui.view">
+            <field name="name">Reservation Form</field>
+            <field name="model">hotel.reservation</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button id="button_confirm" name="action_confirm" string="Confirm" class="btn-primary"
+                                states="draft" type="object"/>
+                        <button name="create_customer_invoice"
+                                string="Create Invoice" states="running" type="object" class="oe_highlight"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div name="button_box" class="oe_button_box">
+                            <button name="return_to_active_invoice" type="object" class="oe_stat_button" icon="fa-book"
+                                    attrs="{'invisible':[('reservation_id','=',False)]}"
+                                    string="Active Invoice"/>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Customer Data">
+                                <field name="customer_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="phone" readonly="1"/>
+                                <field name="email" readonly="1"/>
+                                <field name="address" readonly="1"/>
+                                <field name="id_type"/>
+                                <field name="id_data" attrs="{'invisible': [('id_type', '=', False)]}"/>
+                                <field name="note"/>
+                                <field name="most" invisible="1"/>
+                                <field name="reservation_id" invisible="1"/>
+                            </group>
+                            <group string="Reservation Data">
+                                <field name="res_start_date" attrs="{'readonly': [('state', '!=', 'draft')]}" order="desc"/>
+                                <field name="res_end_date" attrs="{'readonly': [('state', '=', 'ended')]}"/>
+                                <field name="duration" attrs="{'readonly': [('state', '=', 'running')]}"/>
+                                <field name="reservation_type" attrs="{'readonly': [('state', '=', 'running')]}"
+                                       edit="0"/>
+                                <field name="room_id"
+                                       attrs="{'invisible': [('res_start_date', '=', False)], 'readonly': [('state', '=', 'running')]}"
+                                       create="0"/>
+
+                                <field name="room_floor" readonly="1"/>
+                                <field name="room_unit_price" attrs="{'readonly': [('state', '!=', 'running')]}"/>
+                                <field name="sub_total" readonly="1"/>
+                                <field name="extras" widget="many2many_tags"
+                                       attrs="{'readonly': [('state', '=', 'running')]}"/>
+                                <field name="ex_price" readonly="1"/>
+                                <field name="ex_sub_total" readonly="1"/>
+                                <field name="penalties" attrs="{'invisible': [('state', '!=', 'running')]}"/>
+                                <field name="final_price" readonly="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- explicit list view definition -->
+
+        <record model="ir.ui.view" id="hotel_reservation_list">
+            <field name="name">Reservation list</field>
+            <field name="model">hotel.reservation</field>
+            <field name="arch" type="xml">
+                <tree decoration-success="state=='ended'" decoration-info="state=='scheduled'"
+                      decoration-warning="state=='running'"
+                      decoration-danger="state=='draft'" sample="1" multi_edit="1">
+                    <field name="name"/>
+                    <field name="customer_id"/>
+                    <field name="room_id"/>
+                    <field name="res_start_date"/>
+                    <field name="res_end_date"/>
+                    <field name="duration"/>
+                    <field name="final_price"/>
+                    <field name="note"/>
+                    <field name="most" invisible="1"/>
+                    <field name="state"
+                           decoration-success="state=='ended'"
+                           decoration-info="state=='scheduled'"
+                           decoration-danger="state=='draft'"
+                           decoration-warning="state=='running'"
+                           widget="badge"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_hotel_reservation_search">
+            <field name="name">reservation.search</field>
+            <field name="model">hotel.reservation</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" filter_domain="['|',('name','ilike',self),('ref','ilike',self)]"/>
+                    <field name="most" filter_domain="[('room_id','=', most)]"/>
+                    <filter name="filter_borrowed" string="Draft"
+                            domain="[('state','=','draft')]"/>
+                    <filter name="filter_scheduled" string="Scheduled"
+                            domain="[('state','=','scheduled')]"/>
+                    <separator/>
+                    <filter name="filter_running" string="Running"
+                            domain="[('state','=','running')]"/>
+                    <filter name="filter_ended" string="Ended"
+                            domain="[('state','=','ended')]"/>
+
+                    <group expand="0" string="Group By">
+                        <filter string="state" name="group_by_state"
+                                context="{'group_by': 'state'}"/>
+                    </group>
+
+                    <group expand="0" string="Group By">
+                        <filter string="Customer" name="group_by_state"
+                                context="{'group_by': 'customer_id'}"/>
+                    </group>
+
+                    <searchpanel>
+                        <field name="state" icon="fa-users"
+                               select="multi" enable_counters="1"/>
+                        <field name="room_id" icon="fa-users"
+                               select="multi" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="reservation_view_calendar">
+            <field name="model">hotel.reservation</field>
+            <field name="priority" eval="2"/>
+            <field name="arch" type="xml">
+                <calendar string="Scheduled Reservations" date_start="res_start_date" color="room_id">
+                    <field name="name"/>
+                    <field name="customer_id"/>
+                    <field name="room_id"/>
+                    <field name="state"/>
+                    <field name="res_end_date"/>
+                </calendar>
+            </field>
+        </record>
+
+        <!-- actions opening views on models -->
+
+        <record model="ir.actions.act_window" id="reservations_actions">
+            <field name="name">Reservations</field>
+            <field name="res_model">hotel.reservation</field>
+            <field name="view_mode">tree,form,kanban,pivot,graph,calendar</field>
+        </record>
+
+
+    </data>
+</odoo>
+
