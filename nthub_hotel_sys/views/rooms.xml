@@ -1,0 +1,175 @@
+<odoo>
+    <data>
+        <record id="view_room_graph" model="ir.ui.view">
+            <field name="name">room.graph</field>
+            <field name="model">hotel.room</field>
+            <field name="arch" type="xml">
+                <graph string="Rooms">
+                    <field name="state" type="col"/>
+                </graph>
+            </field>
+        </record>
+        <record id="view_room_pivot" model="ir.ui.view">
+            <field name="name">room.pivot</field>
+            <field name="model">hotel.room</field>
+            <field name="arch" type="xml">
+                <pivot string="Reservation">
+                    <field name="state" type="col"/>
+                </pivot>
+            </field>
+        </record>
+        <record id="view_room_kanban" model="ir.ui.view">
+            <field name="name">hotel.room.kanban</field>
+            <field name="model">hotel.room</field>
+            <field name="arch" type="xml">
+                <kanban default_order="id desc">
+                    <field name="id"/>
+                    <field name="reference"/>
+                    <field name="name"/>
+                    <field name="room_type"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+                                <div class="oe_kanban_details">
+                                    <ul>
+                                        <li>
+                                            Reference:
+                                            <field name="reference"/>
+                                        </li>
+                                        <li>
+                                            Room Number:
+                                            <field name="name"/>
+                                        </li>
+
+                                        <li>
+                                            Room Type:
+                                            <field name="room_type"/>
+                                        </li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record id="view_room_form" model="ir.ui.view">
+            <field name="name">Room Form</field>
+            <field name="model">hotel.room</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button id="button_maintain" name="action_maintain" string="Maintain" class="btn-primary"
+                                states="empty" type="object"/>
+                        <button id="button_empty" name="action_empty" string="Empty" class="btn-primary"
+                                states="maintained" type="object"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="reference" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="room_type"/>
+                                <field name="floor_num"/>
+                                <field name="unit_price"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Reservations">
+                                <field name="reservation_ids">
+                                    <tree string="Reservations" create="0" edit="0" delete="0" attrs="{'invisible': [('state','=','ended')]}">
+                                        <field name="name"/>
+                                        <field name="res_start_date"/>
+                                        <field name="res_end_date"/>
+                                        <field name="state"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- explicit list view definition -->
+
+        <record id="view_room_tree" model="ir.ui.view">
+            <field name="name">Rooms list</field>
+            <field name="model">hotel.room</field>
+            <field name="arch" type="xml">
+                <tree decoration-success="state=='empty'" decoration-info="state=='maintained'"
+                      decoration-warning="state=='busy'"
+                      sample="1" multi_edit="1">
+                    <field name="reference"/>
+                    <field name="name"/>
+                    <field name="room_type"/>
+                    <field name="floor_num"/>
+                    <field name="unit_price"/>
+                    <field name="state"
+                           decoration-success="state=='empty'"
+                           decoration-info="state=='maintained'"
+                           decoration-warning="state=='busy'"
+                           widget="badge"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_room_search">
+            <field name="name">room.search</field>
+            <field name="model">hotel.room</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" filter_domain="['|',('name','ilike',self),('ref','ilike',self)]"/>
+
+                    <filter name="filter_busy" string="Busy"
+                            domain="[('state','=','busy')]"/>
+                    <separator/>
+
+                    <filter name="filter_empty" string="Empty"
+                            domain="[('state','=','empty')]"/>
+                    <separator/>
+                    <filter name="filter_maintained" string="Maintained"
+                            domain="[('state','=','maintained')]"/>
+
+                    <group expand="0" string="Group By">
+                        <filter string="state" name="group_by_state"
+                                context="{'group_by': 'state'}"/>
+                    </group>
+                    <group expand="0" string="Group By">
+                        <filter string="name" name="group_by_state"
+                                context="{'group_by': 'name'}"/>
+                    </group>
+
+                    <searchpanel>
+                        <field name="room_type" icon="fa-users"
+                               select="multi" enable_counters="1"/>
+                        <field name="state" icon="fa-users"
+                               select="multi" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+
+        <!-- actions opening views on models -->
+
+        <record id="rooms_actions" model="ir.actions.act_window">
+            <field name="name">Rooms</field>
+            <field name="res_model">hotel.room</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    create your first room!
+                </p>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

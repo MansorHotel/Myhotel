@@ -1,0 +1,26 @@
+<odoo>
+    <data>
+        <!-- Top menu item -->
+        <menuitem name="Hotel" id="hotel_menu_root"  web_icon="nthub_hotel_sys,static/description/icon.png"/>
+
+        <menuitem name="Reservations" id="hotel_reservations_root" parent="hotel_menu_root"
+                  action="reservations_actions" sequence="2"/>
+
+        <menuitem id="hotel_customer" name="Customers" parent="hotel_menu_root"
+                  action="contacts.action_contacts" sequence="3"/>
+
+        <menuitem name="Configurations" id="hotel_configurations_root" parent="hotel_menu_root"
+        sequence="4"/>
+
+        <menuitem name="Rooms" id="hotel_rooms_root" parent="hotel_configurations_root"
+                  action="rooms_actions" sequence="1"/>
+
+        <menuitem name="Extra Utilities" id="hotel_extra_root" parent="hotel_configurations_root"
+                  action="extra_actions" sequence="2"/>
+
+        <menuitem id="dash_menu" name="Dashboard" parent="hotel_menu_root"
+                  action="open_board_my_dash_action" sequence="0"/>
+
+
+    </data>
+</odoo>

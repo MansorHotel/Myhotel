@@ -1,0 +1,48 @@
+<odoo>
+    <data>
+
+        <record id="view_extra_form" model="ir.ui.view">
+            <field name="name">extra utilities Form</field>
+            <field name="model">hotel.extra</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="price"/>
+                                <field name="note"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- explicit list view definition -->
+
+        <record model="ir.ui.view" id="hotel_extra_list">
+            <field name="name">extra utilities list</field>
+            <field name="model">hotel.extra</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="price"/>
+                    <field name="note"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <!-- actions opening views on models -->
+
+        <record model="ir.actions.act_window" id="extra_actions">
+            <field name="name">Extra Utilities</field>
+            <field name="res_model">hotel.extra</field>
+            <field name="view_mode">tree,form,kanban</field>
+        </record>
+
+
+
+    </data>
+</odoo>
